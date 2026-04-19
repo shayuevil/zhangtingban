@@ -10,6 +10,8 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 from storage import ZtPoolStorage, SectorStorage, init_database
+from scheduler import start_scheduler
+from data_fetcher import DataFetcher
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +43,9 @@ class ConnectionManager:
 
 
 manager = ConnectionManager()
+
+# 全局调度器实例
+_scheduler = None
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -116,6 +121,8 @@ async def websocket_zt_pool(websocket: WebSocket):
 
 def create_app():
     """创建并配置应用"""
+    global _scheduler
+
     # 初始化数据库
     init_database()
 
@@ -128,6 +135,21 @@ def create_app():
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
+
+    # 启动调度器
+    from storage import ZtPoolStorage, SectorStorage
+    fetcher = DataFetcher()
+
+    # 创建组合存储对象
+    class StorageWrapper:
+        def save_zt_pool(self, stocks, date):
+            return ZtPoolStorage.save_zt_pool(stocks, date)
+        def save_sector_ranking(self, sectors, date):
+            return SectorStorage.save_sector_ranking(sectors, date)
+
+    storage = StorageWrapper()
+    _scheduler = start_scheduler(fetcher, storage)
+    logger.info("数据抓取调度器已启动")
 
     return app
 

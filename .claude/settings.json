@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install *)",
+      "Read(//e/storm/test-xs-sp/**)"
+    ],
+    "additionalDirectories": [
+      "E:\\storm\\test-xs-sp"
+    ]
+  }
+}
