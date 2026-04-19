@@ -18,6 +18,7 @@ class ZtPoolApp {
             explosion: document.getElementById('stat-explosion'),
             rate: document.getElementById('stat-rate'),
             continuous: document.getElementById('stat-continuous'),
+            momentum: document.getElementById('stat-momentum'),
             updateTime: document.getElementById('update-time'),
             filterContinuous: document.getElementById('filter-continuous'),
             filterSeal: document.getElementById('filter-seal'),
@@ -85,6 +86,37 @@ class ZtPoolApp {
         this.elements.explosion.textContent = stats.explosion_count || 0;
         this.elements.rate.textContent = (stats.explosion_rate || 0) + '%';
         this.elements.continuous.textContent = stats.continuous_count || 0;
+
+        // 昨涨停今日表现
+        const yp = stats.yesterday_performance || {};
+        const momentum = this.elements.momentum;
+        if (momentum) {
+            momentum.textContent = yp.momentum_score || '--';
+            momentum.className = 'stat-value momentum ' + this.getMomentumClass(yp.momentum_score);
+        }
+
+        // 显示昨涨停详情
+        const yesterdayStats = document.getElementById('yesterday-stats');
+        if (yesterdayStats && yp.yesterday_zt_count > 0) {
+            yesterdayStats.style.display = 'flex';
+            document.getElementById('stat-yesterday-count').textContent = yp.yesterday_zt_count;
+            document.getElementById('stat-yesterday-up').textContent = yp.today_up_count;
+            document.getElementById('stat-yesterday-down').textContent = yp.today_down_count;
+            const avgEl = document.getElementById('stat-yesterday-avg');
+            avgEl.textContent = (yp.today_change_avg >= 0 ? '+' : '') + yp.today_change_avg + '%';
+            avgEl.className = 'stat-num ' + (yp.today_change_avg >= 0 ? 'up' : 'down');
+        }
+    }
+
+    getMomentumClass(score) {
+        const map = {
+            '极好': 'excellent',
+            '较好': 'good',
+            '中性': 'neutral',
+            '较差': 'bad',
+            '极差': 'terrible'
+        };
+        return map[score] || 'neutral';
     }
 
     updateSectorFilter(sectors) {

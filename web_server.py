@@ -80,6 +80,9 @@ async def get_sector_ranking(limit: int = 10):
 @app.get("/api/stats/dashboard")
 async def get_dashboard_stats():
     """获取Dashboard统计数据"""
+    from data_fetcher import DataFetcher
+    from storage import YesterdayZtPerformance
+
     today_zt = ZtPoolStorage.get_today_zt_pool()
 
     # 计算统计指标
@@ -93,6 +96,30 @@ async def get_dashboard_stats():
     # 热门板块
     top_sectors = SectorStorage.get_top_sectors(3)
 
+    # 昨日涨停今日表现
+    yesterday_performance = {"momentum_score": "中性", "today_up_count": 0, "today_down_count": 0}
+    try:
+        fetcher = DataFetcher()
+        yesterday_stocks = YesterdayZtPerformance.get_yesterday_zt_codes()
+
+        if yesterday_stocks:
+            codes = [s['stock_code'] for s in yesterday_stocks]
+            # 获取实时行情
+            quotes = fetcher.refresh_realtime_quotes(codes)
+
+            # 构建 (当前价, 昨收价) 字典
+            current_prices = {}
+            for code in codes:
+                if code in quotes:
+                    current_prices[code] = (
+                        quotes[code].get('price', 0),
+                        quotes[code].get('prev_close', quotes[code].get('price', 0))
+                    )
+
+            yesterday_performance = YesterdayZtPerformance.calculate_performance(codes, current_prices)
+    except Exception as e:
+        logger.warning(f"获取昨日涨停表现失败: {e}")
+
     return {
         "code": 0,
         "data": {
@@ -101,7 +128,9 @@ async def get_dashboard_stats():
             "explosion_rate": explosion_rate,
             "continuous_count": len(continuous_stocks),
             "top_sectors": top_sectors,
-            "update_time": datetime.now().strftime("%H:%M:%S")
+            "update_time": datetime.now().strftime("%H:%M:%S"),
+            # 昨日涨停今日表现
+            "yesterday_performance": yesterday_performance
         }
     }
 

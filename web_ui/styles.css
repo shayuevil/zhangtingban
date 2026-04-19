@@ -43,7 +43,7 @@ body {
 /* Dashboard */
 .dashboard {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 16px;
     margin-bottom: 20px;
 }
@@ -55,6 +55,29 @@ body {
 }
 .stat-label { color: var(--text-muted); font-size: 14px; margin-bottom: 4px; }
 .stat-value { font-size: 32px; font-weight: bold; color: var(--primary); }
+
+/* 情绪评分颜色 */
+.momentum.excellent { color: #10b981; }
+.momentum.good { color: #22c55e; }
+.momentum.neutral { color: #64748b; }
+.momentum.bad { color: #f59e0b; }
+.momentum.terrible { color: #ef4444; }
+
+/* 昨涨停详情 */
+.sub-stats {
+    display: flex;
+    gap: 24px;
+    padding: 12px 20px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+.stat-item { display: flex; align-items: center; gap: 6px; }
+.stat-item .stat-label { color: var(--text-muted); }
+.stat-item .stat-num { font-weight: 600; color: var(--text); }
+.stat-item.up .stat-num { color: var(--danger); }
+.stat-item.down .stat-num { color: var(--success); }
 
 /* Filters */
 .filters {

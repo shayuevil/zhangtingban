@@ -134,3 +134,110 @@ class SectorStorage:
                 LIMIT ?
             """, (today, limit))
             return [dict(row) for row in cursor.fetchall()]
+
+
+class YesterdayZtPerformance:
+    """昨日涨停今日表现分析"""
+
+    @staticmethod
+    def get_yesterday_zt_codes() -> list[dict]:
+        """获取最近一个有涨停数据的日期的涨停股"""
+        with get_connection() as conn:
+            cursor = conn.cursor()
+            # 查找最近一个有涨停数据的交易日
+            cursor.execute("""
+                SELECT DISTINCT date FROM zt_pool_history
+                WHERE date < date('now', 'localtime')
+                ORDER BY date DESC
+                LIMIT 1
+            """)
+            row = cursor.fetchone()
+            if not row:
+                return []
+
+            latest_date = row['date']
+            cursor.execute("""
+                SELECT stock_code, stock_name, change_pct as yesterday_change
+                FROM zt_pool_history
+                WHERE date = ?
+            """, (latest_date,))
+            return [dict(r) for r in cursor.fetchall()]
+
+    @staticmethod
+    def calculate_performance(stock_codes: list[str], current_prices: dict[str, float]) -> dict:
+        """
+        计算昨日涨停股今日表现
+
+        Args:
+            stock_codes: 昨日涨停股代码列表
+            current_prices: {code: (current_price, prev_close_price)}
+
+        Returns:
+            {
+                "yesterday_zt_count": int,     # 昨日涨停股总数
+                "today_up_count": int,         # 今日上涨数
+                "today_down_count": int,       # 今日下跌数
+                "today_flat_count": int,      # 今日平盘数
+                "today_change_avg": float,     # 今日平均涨幅
+                "momentum_score": str,       # 情绪评分: "极好"/"较好"/"中性"/"较差"/"极差"
+            }
+        """
+        if not stock_codes:
+            return {
+                "yesterday_zt_count": 0,
+                "today_up_count": 0,
+                "today_down_count": 0,
+                "today_flat_count": 0,
+                "today_change_avg": 0,
+                "momentum_score": "中性"
+            }
+
+        up_count = 0
+        down_count = 0
+        flat_count = 0
+        total_change = 0
+        valid_count = 0
+
+        for code in stock_codes:
+            if code in current_prices:
+                current, prev_close = current_prices[code]
+                if prev_close > 0:
+                    change_pct = (current - prev_close) / prev_close * 100
+                    total_change += change_pct
+                    valid_count += 1
+
+                    if change_pct > 0.1:
+                        up_count += 1
+                    elif change_pct < -0.1:
+                        down_count += 1
+                    else:
+                        flat_count += 1
+
+        avg_change = total_change / valid_count if valid_count > 0 else 0
+
+        # 情绪评分
+        if valid_count == 0:
+            momentum_score = "中性"
+        elif valid_count >= 5:
+            up_rate = up_count / valid_count
+            if up_rate >= 0.7 and avg_change >= 2:
+                momentum_score = "极好"
+            elif up_rate >= 0.5 and avg_change >= 1:
+                momentum_score = "较好"
+            elif up_rate >= 0.4:
+                momentum_score = "中性"
+            elif up_rate >= 0.3 and avg_change >= -1:
+                momentum_score = "较差"
+            else:
+                momentum_score = "极差"
+        else:
+            momentum_score = "中性"
+
+        return {
+            "yesterday_zt_count": len(stock_codes),
+            "today_up_count": up_count,
+            "today_down_count": down_count,
+            "today_flat_count": flat_count,
+            "today_change_avg": round(avg_change, 2),
+            "momentum_score": momentum_score
+        }

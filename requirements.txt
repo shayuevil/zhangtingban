@@ -1,7 +1,7 @@
 # Web服务
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-python-multipart==0.0.6
+fastapi>=0.109.0
+uvicorn[standard]>=0.31.1
+python-multipart>=0.0.9
 
 # 数据获取
 akshare>=1.10.0
@@ -10,7 +10,7 @@ requests>=2.28.0
 python-dotenv>=1.0.0
 
 # 定时任务
-apscheduler==3.10.4
+apscheduler>=3.10.4
 
 # WebSocket (可选，用于实时行情)
 websockets>=11.0
