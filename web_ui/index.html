@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A股涨停板池</title>
+    <link rel="stylesheet" href="/web_ui/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>📊 今日涨停板池</h1>
+            <div class="header-right">
+                <span id="update-time" class="update-time">--:--:--</span>
+                <button id="refresh-btn" class="btn-refresh">🔄 刷新</button>
+            </div>
+        </header>
+
+        <!-- Dashboard Stats -->
+        <div class="dashboard">
+            <div class="stat-card">
+                <div class="stat-label">涨停总数</div>
+                <div id="stat-total" class="stat-value">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">炸板数</div>
+                <div id="stat-explosion" class="stat-value">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">炸板率</div>
+                <div id="stat-rate" class="stat-value">--</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">连板股</div>
+                <div id="stat-continuous" class="stat-value">--</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <label>
+                连板≥
+                <select id="filter-continuous">
+                    <option value="1">全部</option>
+                    <option value="2">2连板+</option>
+                    <option value="3">3连板+</option>
+                    <option value="4">4连板+</option>
+                </select>
+            </label>
+            <label>
+                封板资金≥
+                <select id="filter-seal">
+                    <option value="0">全部</option>
+                    <option value="1000">1000万</option>
+                    <option value="5000">5000万</option>
+                    <option value="10000">1亿</option>
+                </select>
+            </label>
+            <label>
+                板块
+                <select id="filter-sector">
+                    <option value="">全部</option>
+                </select>
+            </label>
+            <input type="text" id="search-stock" placeholder="搜索股票代码/名称">
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-container">
+            <table id="zt-table">
+                <thead>
+                    <tr>
+                        <th data-sort="stock_code">股票代码</th>
+                        <th data-sort="stock_name">股票名称</th>
+                        <th data-sort="continuous_days">连板</th>
+                        <th data-sort="seal_amount">封板资金</th>
+                        <th data-sort="explosion_count">炸板</th>
+                        <th data-sort="super_net_inflow">超大单</th>
+                        <th data-sort="big_net_inflow">大单</th>
+                        <th data-sort="sector">板块</th>
+                    </tr>
+                </thead>
+                <tbody id="zt-tbody">
+                    <tr><td colspan="8" class="loading">加载中...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="/web_ui/app.js"></script>
+</body>
+</html>
