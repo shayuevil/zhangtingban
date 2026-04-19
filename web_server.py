@@ -119,6 +119,10 @@ def create_app():
     # 初始化数据库
     init_database()
 
+    # 挂载静态文件
+    web_ui_path = Path(__file__).parent / "web_ui"
+    app.mount("/web_ui", StaticFiles(directory=str(web_ui_path), html=True), name="web_ui")
+
     # 配置日志
     logging.basicConfig(
         level=logging.INFO,
