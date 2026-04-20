@@ -96,6 +96,99 @@ body {
 }
 .filters input { min-width: 150px; }
 
+/* 详情按钮 */
+.btn-detail {
+    padding: 8px 16px;
+    background: var(--warning);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: auto;
+}
+.btn-detail:hover { background: #d97706; }
+
+/* Modal 弹窗 */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+.modal-content {
+    background-color: var(--card-bg);
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 85vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+}
+.modal-header h2 { font-size: 18px; }
+.modal-close {
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+.modal-close:hover { color: var(--text); }
+.modal-body {
+    padding: 20px 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* 股票分组 */
+.stock-section { margin-bottom: 24px; }
+.stock-section:last-child { margin-bottom: 0; }
+.section-title {
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+}
+.section-title.down { background: #fef2f2; color: #dc2626; }
+.section-title.up { background: #f0fdf4; color: #16a34a; }
+.section-title.flat { background: #f8fafc; color: #64748b; }
+
+.stock-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.stock-chip {
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.stock-chip:hover { transform: scale(1.05); }
+.stock-chip.up { background: #fef2f2; border: 1px solid #fecaca; }
+.stock-chip.down { background: #f0fdf4; border: 1px solid #bbf7d0; }
+.stock-chip.flat { background: #f8fafc; border: 1px solid var(--border); }
+.stock-chip .name { font-weight: 600; }
+.stock-chip .change { font-weight: bold; }
+.stock-chip.up .change { color: var(--danger); }
+.stock-chip.down .change { color: var(--success); }
+
 /* Table */
 .table-container { background: var(--card-bg); border-radius: 8px; overflow: hidden; }
 table { width: 100%; border-collapse: collapse; }

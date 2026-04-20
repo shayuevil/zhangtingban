@@ -88,6 +88,7 @@
                 </select>
             </label>
             <input type="text" id="search-stock" placeholder="搜索股票代码/名称">
+            <button id="btn-yesterday-detail" class="btn-detail">📋 昨涨停详情</button>
         </div>
 
         <!-- Data Table -->
@@ -109,6 +110,39 @@
                     <tr><td colspan="8" class="loading">加载中...</td></tr>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- 昨涨停详情弹窗 -->
+    <div id="yesterday-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📋 昨涨停股今日表现</h2>
+                <span id="modal-close" class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <!-- 绿盘股 -->
+                <div class="stock-section" id="section-down">
+                    <h3 class="section-title down">🔴 绿盘股 (下跌)</h3>
+                    <div class="stock-list" id="list-down">
+                        <div class="loading">加载中...</div>
+                    </div>
+                </div>
+                <!-- 红盘股 -->
+                <div class="stock-section" id="section-up">
+                    <h3 class="section-title up">🟢 红盘股 (上涨)</h3>
+                    <div class="stock-list" id="list-up">
+                        <div class="loading">加载中...</div>
+                    </div>
+                </div>
+                <!-- 平盘股 -->
+                <div class="stock-section" id="section-flat">
+                    <h3 class="section-title flat">⚪ 平盘股</h3>
+                    <div class="stock-list" id="list-flat">
+                        <div class="loading">加载中...</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
-from storage import ZtPoolStorage, SectorStorage, init_database
+from storage import ZtPoolStorage, SectorStorage, YesterdayZtPerformance, init_database
 from scheduler import start_scheduler
 from data_fetcher import DataFetcher
 
@@ -133,6 +133,94 @@ async def get_dashboard_stats():
             "yesterday_performance": yesterday_performance
         }
     }
+
+
+@app.get("/api/zt_pool/yesterday_detail")
+async def get_yesterday_zt_detail():
+    """
+    获取昨日涨停股的详细列表（按今日涨跌分组）
+
+    返回:
+    {
+        "up_stocks": [{code, name, yesterday_close, today_price, today_change}...],
+        "down_stocks": [...],
+        "flat_stocks": [...],
+        "no_data_stocks": [...]  # 无法获取行情的股票
+    }
+    """
+    from data_fetcher import DataFetcher
+
+    try:
+        fetcher = DataFetcher()
+        yesterday_stocks = YesterdayZtPerformance.get_yesterday_zt_codes()
+
+        if not yesterday_stocks:
+            return {"code": 0, "data": {
+                "up_stocks": [],
+                "down_stocks": [],
+                "flat_stocks": [],
+                "no_data_stocks": []
+            }}
+
+        codes = [s['stock_code'] for s in yesterday_stocks]
+        quotes = fetcher.refresh_realtime_quotes(codes)
+
+        up_stocks = []
+        down_stocks = []
+        flat_stocks = []
+        no_data_stocks = []
+
+        for stock in yesterday_stocks:
+            code = stock['stock_code']
+            name = stock['stock_name']
+            yesterday_close = stock.get('yesterday_change', 0)
+
+            if code in quotes:
+                q = quotes[code]
+                today_price = q.get('price', 0)
+                prev_close = q.get('prev_close', today_price)
+
+                if prev_close > 0:
+                    today_change = (today_price - prev_close) / prev_close * 100
+                else:
+                    today_change = 0
+
+                item = {
+                    "code": code,
+                    "name": name,
+                    "yesterday_close": prev_close,
+                    "today_price": today_price,
+                    "today_change": round(today_change, 2),
+                    "sector": stock.get('sector', '')
+                }
+
+                if today_change > 0.1:
+                    up_stocks.append(item)
+                elif today_change < -0.1:
+                    down_stocks.append(item)
+                else:
+                    flat_stocks.append(item)
+            else:
+                no_data_stocks.append({
+                    "code": code,
+                    "name": name
+                })
+
+        # 按涨跌幅排序
+        up_stocks.sort(key=lambda x: x['today_change'], reverse=True)
+        down_stocks.sort(key=lambda x: x['today_change'])
+        flat_stocks.sort(key=lambda x: x['today_change'], reverse=True)
+
+        return {"code": 0, "data": {
+            "up_stocks": up_stocks,
+            "down_stocks": down_stocks,
+            "flat_stocks": flat_stocks,
+            "no_data_stocks": no_data_stocks
+        }}
+
+    except Exception as e:
+        logger.error(f"获取昨日涨停详情失败: {e}")
+        return {"code": 1, "message": str(e)}
 
 
 @app.websocket("/ws/zt_pool")

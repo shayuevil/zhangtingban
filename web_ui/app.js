@@ -24,7 +24,10 @@ class ZtPoolApp {
             filterSeal: document.getElementById('filter-seal'),
             filterSector: document.getElementById('filter-sector'),
             searchStock: document.getElementById('search-stock'),
-            refreshBtn: document.getElementById('refresh-btn')
+            refreshBtn: document.getElementById('refresh-btn'),
+            btnYesterdayDetail: document.getElementById('btn-yesterday-detail'),
+            modal: document.getElementById('yesterday-modal'),
+            modalClose: document.getElementById('modal-close')
         };
     }
 
@@ -54,6 +57,64 @@ class ZtPoolApp {
         document.querySelectorAll('th[data-sort]').forEach(th => {
             th.addEventListener('click', () => this.handleSort(th.dataset.sort));
         });
+
+        // 昨涨停详情弹窗
+        this.elements.btnYesterdayDetail?.addEventListener('click', () => this.showYesterdayDetail());
+        this.elements.modalClose?.addEventListener('click', () => this.hideYesterdayDetail());
+        this.elements.modal?.addEventListener('click', (e) => {
+            if (e.target === this.elements.modal) this.hideYesterdayDetail();
+        });
+    }
+
+    async showYesterdayDetail() {
+        const modal = this.elements.modal;
+        if (!modal) return;
+
+        modal.style.display = 'block';
+
+        // 显示加载状态
+        document.getElementById('list-down').innerHTML = '<div class="loading">加载中...</div>';
+        document.getElementById('list-up').innerHTML = '<div class="loading">加载中...</div>';
+        document.getElementById('list-flat').innerHTML = '<div class="loading">加载中...</div>';
+
+        try {
+            const res = await fetch('/api/zt_pool/yesterday_detail');
+            const data = await res.json();
+
+            if (data.code === 0) {
+                this.renderYesterdayList('list-down', data.data.down_stocks, 'down');
+                this.renderYesterdayList('list-up', data.data.up_stocks, 'up');
+                this.renderYesterdayList('list-flat', data.data.flat_stocks, 'flat');
+
+                // 如果没有数据，显示提示
+                const total = data.data.down_stocks.length + data.data.up_stocks.length + data.data.flat_stocks.length;
+                if (total === 0) {
+                    document.getElementById('list-up').innerHTML = '<div class="loading">暂无数据</div>';
+                }
+            }
+        } catch (err) {
+            console.error('加载昨涨停详情失败:', err);
+        }
+    }
+
+    hideYesterdayDetail() {
+        this.elements.modal.style.display = 'none';
+    }
+
+    renderYesterdayList(listId, stocks, type) {
+        const container = document.getElementById(listId);
+        if (!stocks || stocks.length === 0) {
+            container.innerHTML = '<span style="color:#999;font-size:13px;">暂无</span>';
+            return;
+        }
+
+        container.innerHTML = stocks.map(s => {
+            const changeStr = (s.today_change >= 0 ? '+' : '') + s.today_change + '%';
+            return `<div class="stock-chip ${type}">
+                <span class="name">${s.name}(${s.code})</span>
+                <span class="change">${changeStr}</span>
+            </div>`;
+        }).join('');
     }
 
     async loadData() {
