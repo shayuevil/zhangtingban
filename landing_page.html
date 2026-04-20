@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SparkLearn - Ignite Your Potential</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --coral: #FF6B6B;
+            --coral-light: #FF8E8E;
+            --turquoise: #4ECDC4;
+            --turquoise-dark: #3DBDB5;
+            --purple: #A855F7;
+            --purple-dark: #9333EA;
+            --yellow: #FFD93D;
+            --yellow-dark: #F5C800;
+            --blue: #3B82F6;
+            --pink: #EC4899;
+            --orange: #F97316;
+            --green: #22C55E;
+            --bg-light: #FFF5F5;
+            --bg-purple: #FAF5FF;
+            --bg-blue: #F0F9FF;
+            --bg-green: #F0FDF4;
+            --shadow-soft: 8px 8px 20px rgba(0,0,0,0.1), -8px -8px 20px rgba(255,255,255,0.8);
+            --shadow-pressed: inset 6px 6px 12px rgba(0,0,0,0.1), inset -6px -6px 12px rgba(255,255,255,0.8);
+            --shadow-raised: 12px 12px 24px rgba(0,0,0,0.15), -8px -8px 20px rgba(255,255,255,0.9);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #FFF5F5 0%, #F5F0FF 25%, #F0F9FF 50%, #F0FDF4 75%, #FFF8E6 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Decorative floating shapes */
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.15;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            background: var(--coral);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            background: var(--turquoise);
+            bottom: 20%;
+            left: -50px;
+            animation-delay: -5s;
+        }
+
+        .shape-3 {
+            width: 250px;
+            height: 250px;
+            background: var(--purple);
+            top: 40%;
+            right: 10%;
+            animation-delay: -10s;
+        }
+
+        .shape-4 {
+            width: 180px;
+            height: 180px;
+            background: var(--yellow);
+            bottom: -50px;
+            right: 30%;
+            animation-delay: -15s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(30px, -30px) rotate(5deg); }
+            50% { transform: translate(-20px, 20px) rotate(-5deg); }
+            75% { transform: translate(20px, 10px) rotate(3deg); }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1rem 2rem;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--coral), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--coral), var(--orange));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            -webkit-text-fill-color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #4A4A6A;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--purple);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--coral), var(--orange));
+            color: white !important;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-raised);
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            z-index: 1;
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            box-shadow: var(--shadow-soft);
+            font-weight: 600;
+            color: var(--purple);
+            margin-bottom: 2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .hero h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--coral) 0%, var(--purple) 50%, var(--turquoise) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: #6B7280;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--coral), var(--orange));
+            color: white;
+            box-shadow: var(--shadow-soft), 0 4px 15px rgba(255,107,107,0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: var(--shadow-raised), 0 8px 25px rgba(255,107,107,0.5);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--purple);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-raised);
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            gap: 3rem;
+            margin-top: 4rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: white;
+            padding: 1.5rem 2.5rem;
+            border-radius: 24px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .stat-number {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--turquoise), var(--blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #6B7280;
+            font-weight: 600;
+        }
+
+        /* Section Styling */
+        .section {
+            position: relative;
+            z-index: 1;
+            padding: 5rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            color: #1F2937;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.25rem;
+            color: #6B7280;
+        }
+
+        /* Course Catalog */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2rem;
+            box-shadow: var(--shadow-soft);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, var(--coral), var(--orange));
+        }
+
+        .course-card:nth-child(2)::before {
+            background: linear-gradient(90deg, var(--turquoise), var(--green));
+        }
+
+        .course-card:nth-child(3)::before {
+            background: linear-gradient(90deg, var(--purple), var(--pink));
+        }
+
+        .course-card:nth-child(4)::before {
+            background: linear-gradient(90deg, var(--yellow), var(--orange));
+        }
+
+        .course-card:hover {
+            transform: translateY(-8px) rotate(1deg);
+            box-shadow: var(--shadow-raised);
+        }
+
+        .course-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-pressed);
+        }
+
+        .course-card:nth-child(1) .course-icon {
+            background: linear-gradient(135deg, #FFE5E5, #FFF0F0);
+        }
+
+        .course-card:nth-child(2) .course-icon {
+            background: linear-gradient(135deg, #E0FFF9, #F0FFFC);
+        }
+
+        .course-card:nth-child(3) .course-icon {
+            background: linear-gradient(135deg, #F3E5FF, #FAF0FF);
+        }
+
+        .course-card:nth-child(4) .course-icon {
+            background: linear-gradient(135deg, #FFF8E0, #FFFCF0);
+        }
+
+        .course-card h3 {
+            font-size: 1.5rem;
+            color: #1F2937;
+            margin-bottom: 0.75rem;
+        }
+
+        .course-card p {
+            color: #6B7280;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 2px dashed #E5E7EB;
+        }
+
+        .course-price {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--coral);
+        }
+
+        .course-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--yellow-dark);
+        }
+
+        .course-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: linear-gradient(135deg, var(--coral), var(--orange));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        /* Progress Section */
+        .progress-demo {
+            background: linear-gradient(135deg, var(--bg-purple), var(--bg-blue));
+            border-radius: 40px;
+            padding: 3rem;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .progress-user {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--turquoise), var(--blue));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .user-info h4 {
+            font-size: 1.25rem;
+            color: #1F2937;
+        }
+
+        .user-info p {
+            color: #6B7280;
+        }
+
+        .streak-badge {
+            background: linear-gradient(135deg, var(--yellow), var(--orange));
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .courses-progress {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .progress-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-pressed);
+        }
+
+        .progress-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .progress-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .progress-icon.purple { background: #F3E5FF; }
+        .progress-icon.coral { background: #FFE5E5; }
+        .progress-icon.turquoise { background: #E0FFF9; }
+
+        .progress-card h4 {
+            font-size: 1.1rem;
+            color: #1F2937;
+        }
+
+        .progress-card .subtitle {
+            font-size: 0.85rem;
+            color: #6B7280;
+        }
+
+        .progress-bar-container {
+            background: #F3F4F6;
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-pressed);
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 1s ease-out;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            right: 4px;
+            height: 4px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 4px;
+        }
+
+        .progress-bar.purple { background: linear-gradient(90deg, var(--purple), var(--pink)); }
+        .progress-bar.coral { background: linear-gradient(90deg, var(--coral), var(--orange)); }
+        .progress-bar.turquoise { background: linear-gradient(90deg, var(--turquoise), var(--green)); }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+            color: #6B7280;
+        }
+
+        .progress-info strong {
+            color: #1F2937;
+        }
+
+        /* Testimonials */
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 32px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow-soft);
+            position: relative;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-raised);
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 1rem;
+            right: 2rem;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 6rem;
+            color: var(--purple);
+            opacity: 0.1;
+            line-height: 1;
+        }
+
+        .testimonial-text {
+            font-size: 1.1rem;
+            color: #4B5563;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .author-avatar.avatar-1 { background: linear-gradient(135deg, var(--coral), var(--orange)); }
+        .author-avatar.avatar-2 { background: linear-gradient(135deg, var(--turquoise), var(--green)); }
+        .author-avatar.avatar-3 { background: linear-gradient(135deg, var(--purple), var(--pink)); }
+
+        .author-info h5 {
+            font-size: 1.1rem;
+            color: #1F2937;
+        }
+
+        .author-info p {
+            font-size: 0.9rem;
+            color: #6B7280;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .star {
+            color: var(--yellow);
+            font-size: 1rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--coral), var(--purple));
+            border-radius: 50px;
+            padding: 5rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            margin: 5rem auto;
+            max-width: 1200px;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+            animation: rotate 30s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-section h2 {
+            font-size: 3.5rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.25rem;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-btn {
+            background: white;
+            color: var(--purple);
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            padding: 1.25rem 3rem;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+
+        .cta-features {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .cta-feature {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: white;
+            font-weight: 600;
+        }
+
+        .cta-feature-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Footer */
+        footer {
+            background: #1F2937;
+            color: white;
+            padding: 4rem 2rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+        }
+
+        .footer-section h4 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-section a {
+            color: #9CA3AF;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 3rem;
+            margin-top: 3rem;
+            border-top: 1px solid #374151;
+            color: #9CA3AF;
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .stats {
+                gap: 1.5rem;
+            }
+
+            .stat-item {
+                padding: 1rem 1.5rem;
+            }
+
+            .section-header h2 {
+                font-size: 2rem;
+            }
+
+            .cta-section h2 {
+                font-size: 2.5rem;
+            }
+
+            .cta-features {
+                gap: 1.5rem;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #F3F4F6;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--coral), var(--purple));
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+
+    <nav>
+        <div class="nav-content">
+            <div class="logo">
+                <div class="logo-icon">⚡</div>
+                SparkLearn
+            </div>
+            <ul class="nav-links">
+                <li><a href="#courses">Courses</a></li>
+                <li><a href="#progress">My Progress</a></li>
+                <li><a href="#testimonials">Reviews</a></li>
+                <li><a href="#cta" class="nav-cta">Start Learning</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-badge">
+            <span>🎉</span>
+            <span>New courses added weekly!</span>
+        </div>
+        <h1>Ignite Your Learning Journey</h1>
+        <p>Discover fun, interactive courses that make learning feel like play. Join thousands of curious minds on SparkLearn!</p>
+        <div class="hero-buttons">
+            <a href="#cta" class="btn btn-primary">
+                <span>🚀</span>
+                Start Free Trial
+            </a>
+            <a href="#courses" class="btn btn-secondary">
+                <span>📚</span>
+                Browse Courses
+            </a>
+        </div>
+        <div class="stats">
+            <div class="stat-item fade-in stagger-1">
+                <div class="stat-number">50K+</div>
+                <div class="stat-label">Active Learners</div>
+            </div>
+            <div class="stat-item fade-in stagger-2">
+                <div class="stat-number">200+</div>
+                <div class="stat-label">Expert Courses</div>
+            </div>
+            <div class="stat-item fade-in stagger-3">
+                <div class="stat-number">4.9</div>
+                <div class="stat-label">Average Rating</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="courses">
+        <div class="section-header">
+            <h2>Popular Courses</h2>
+            <p>Handpicked by our educators to spark your curiosity</p>
+        </div>
+        <div class="courses-grid">
+            <div class="course-card fade-in stagger-1">
+                <div class="course-badge">BESTSELLER</div>
+                <div class="course-icon">🎨</div>
+                <h3>Creative Design Mastery</h3>
+                <p>Learn to create stunning visuals, from logos to complete brand identities. Perfect for beginners!</p>
+                <div class="course-meta">
+                    <span class="course-price">$49</span>
+                    <span class="course-rating">⭐ 4.9 (2.4k)</span>
+                </div>
+            </div>
+            <div class="course-card fade-in stagger-2">
+                <div class="course-badge">NEW</div>
+                <div class="course-icon">💻</div>
+                <h3>Python for Data Wizards</h3>
+                <p>Transform data into insights! Build real projects and unlock the power of data science.</p>
+                <div class="course-meta">
+                    <span class="course-price">$59</span>
+                    <span class="course-rating">⭐ 4.8 (1.8k)</span>
+                </div>
+            </div>
+            <div class="course-card fade-in stagger-3">
+                <div class="course-icon">🎵</div>
+                <h3>Music Production Lab</h3>
+                <p>Create your own beats! Learn mixing, sound design, and master the art of electronic music.</p>
+                <div class="course-meta">
+                    <span class="course-price">$69</span>
+                    <span class="course-rating">⭐ 4.9 (1.2k)</span>
+                </div>
+            </div>
+            <div class="course-card fade-in stagger-4">
+                <div class="course-icon">🧠</div>
+                <h3>Mind & Memory Boost</h3>
+                <p>Supercharge your brain! Science-backed techniques to learn faster and remember longer.</p>
+                <div class="course-meta">
+                    <span class="course-price">$39</span>
+                    <span class="course-rating">⭐ 4.7 (3.1k)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="progress">
+        <div class="section-header">
+            <h2>Your Learning Dashboard</h2>
+            <p>Track your progress and celebrate every milestone</p>
+        </div>
+        <div class="progress-demo fade-in">
+            <div class="progress-header">
+                <div class="progress-user">
+                    <div class="user-avatar">👩‍💻</div>
+                    <div class="user-info">
+                        <h4>Welcome back, Sarah!</h4>
+                        <p>You're doing amazing. Keep going! 💪</p>
+                    </div>
+                </div>
+                <div class="streak-badge">
+                    <span>🔥</span>
+                    <span>12 Day Streak!</span>
+                </div>
+            </div>
+            <div class="courses-progress">
+                <div class="progress-card">
+                    <div class="progress-card-header">
+                        <div class="progress-icon purple">🎨</div>
+                        <div>
+                            <h4>Creative Design Mastery</h4>
+                            <span class="subtitle">Lesson 8 of 12</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar purple" style="width: 0%;" data-width="67%"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span><strong>67%</strong> complete</span>
+                        <span>⏱️ 4 hours left</span>
+                    </div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-card-header">
+                        <div class="progress-icon coral">💻</div>
+                        <div>
+                            <h4>Python for Data Wizards</h4>
+                            <span class="subtitle">Lesson 4 of 15</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar coral" style="width: 0%;" data-width="27%"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span><strong>27%</strong> complete</span>
+                        <span>⏱️ 12 hours left</span>
+                    </div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-card-header">
+                        <div class="progress-icon turquoise">🎵</div>
+                        <div>
+                            <h4>Music Production Lab</h4>
+                            <span class="subtitle">Lesson 11 of 11</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar turquoise" style="width: 0%;" data-width="100%"></div>
+                    </div>
+                    <div class="progress-info">
+                        <span><strong>100%</strong> complete</span>
+                        <span>✅ Completed!</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="testimonials">
+        <div class="section-header">
+            <h2>Learners Love Us!</h2>
+            <p>Join a community of passionate learners achieving their dreams</p>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial-card fade-in stagger-1">
+                <p class="testimonial-text">"SparkLearn transformed my career! The interactive lessons made complex topics feel simple. I went from knowing nothing about coding to building my own apps in just 3 months."</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar avatar-1">M</div>
+                    <div class="author-info">
+                        <h5>Maria Chen</h5>
+                        <p>Software Developer</p>
+                        <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card fade-in stagger-2">
+                <p class="testimonial-text">"The gamified learning experience keeps me motivated every single day. My streak is 47 days now and I'm learning faster than I ever thought possible!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar avatar-2">J</div>
+                    <div class="author-info">
+                        <h5>James Wilson</h5>
+                        <p>Marketing Manager</p>
+                        <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card fade-in stagger-3">
+                <p class="testimonial-text">"As a teacher, I've recommended SparkLearn to all my students. The quality of content and the engaging format makes learning feel like play. Absolutely brilliant platform!"</p>
+                <div class="testimonial-author">
+                    <div class="author-avatar avatar-3">A</div>
+                    <div class="author-info">
+                        <h5>Amanda Rodriguez</h5>
+                        <p>High School Teacher</p>
+                        <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="cta">
+        <div class="cta-section fade-in">
+            <div class="cta-content">
+                <h2>Ready to Spark Something Amazing?</h2>
+                <p>Join over 50,000 learners already growing with SparkLearn. Start your free trial today and discover the joy of learning!</p>
+                <button class="cta-btn">
+                    <span>✨</span>
+                    Get Started for Free
+                </button>
+                <div class="cta-features">
+                    <div class="cta-feature">
+                        <div class="cta-feature-icon">📚</div>
+                        <span>200+ Courses</span>
+                    </div>
+                    <div class="cta-feature">
+                        <div class="cta-feature-icon">🏆</div>
+                        <span>Certificates</span>
+                    </div>
+                    <div class="cta-feature">
+                        <div class="cta-feature-icon">🔄</div>
+                        <span>Cancel Anytime</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>⚡ SparkLearn</h4>
+                <p style="color: #9CA3AF; line-height: 1.7;">Making learning fun, engaging, and accessible for everyone. Join our community of curious minds!</p>
+            </div>
+            <div class="footer-section">
+                <h4>Explore</h4>
+                <ul>
+                    <li><a href="#">All Courses</a></li>
+                    <li><a href="#">Popular</a></li>
+                    <li><a href="#">New Releases</a></li>
+                    <li><a href="#">For Teams</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Press</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Support</h4>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 SparkLearn. Made with ❤️ for curious minds everywhere.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Animate progress bars when visible
+        const progressObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const bars = entry.target.querySelectorAll('.progress-bar');
+                    bars.forEach((bar, index) => {
+                        setTimeout(() => {
+                            bar.style.width = bar.dataset.width;
+                        }, index * 200);
+                    });
+                    progressObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        const progressDemo = document.querySelector('.progress-demo');
+        if (progressDemo) {
+            progressObserver.observe(progressDemo);
+        }
+
+        // Button interactions
+        document.querySelectorAll('.btn, .cta-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px) scale(1.02)';
+            });
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+            });
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Course card tilt effect
+        document.querySelectorAll('.course-card').forEach(card => {
+            card.addEventListener('mousemove', function(e) {
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+
+                this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+            });
+        });
+    </script>
+</body>
+</html>

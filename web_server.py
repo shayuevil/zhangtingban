@@ -9,7 +9,7 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
-from storage import ZtPoolStorage, SectorStorage, YesterdayZtPerformance, init_database
+from storage import ZtPoolStorage, SectorStorage, YesterdayZtPerformance, ZtPredictor, ExtendedZtPredictor, init_database
 from scheduler import start_scheduler
 from data_fetcher import DataFetcher
 
@@ -220,6 +220,138 @@ async def get_yesterday_zt_detail():
 
     except Exception as e:
         logger.error(f"获取昨日涨停详情失败: {e}")
+        return {"code": 1, "message": str(e)}
+
+
+@app.get("/api/predict/tomorrow")
+async def get_tomorrow_prediction(limit: int = 10, extended: bool = True):
+    """
+    获取今日涨停股次日涨跌预测评分排行 (30+因子版)
+
+    参数:
+    - limit: 返回数量限制，默认10
+    - extended: 是否使用30+因子扩展版，默认True
+
+    返回:
+    {
+        "code": 0,
+        "data": [
+            {
+                "stock_code": "600519",
+                "stock_name": "贵州茅台",
+                "continuous_days": 2,
+                "sector": "白酒",
+                "seal_amount": 52000,
+                "main_net_inflow": 12000,
+                "factors": {
+                    "seal_time_score": 100,
+                    "seal_pattern_score": 100,
+                    ...
+                },
+                "prediction": {
+                    "score": 85,
+                    "up_probability": 0.72,
+                    "down_probability": 0.15,
+                    "flat_probability": 0.13,
+                    "recommendation": "强烈推荐"
+                }
+            },
+            ...
+        ]
+    }
+    """
+    try:
+        # 暂时不使用fetcher以避免长时间等待
+        # 核心因子来自ZT池和数据库已有数据
+        if extended:
+            predictions = ExtendedZtPredictor.get_top_predictions(limit)
+        else:
+            predictions = ZtPredictor.get_top_predictions(limit)
+        return {"code": 0, "data": predictions}
+    except Exception as e:
+        logger.error(f"获取预测排行失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"code": 1, "message": str(e)}
+
+
+@app.get("/api/analyze/stock/{stock_code}")
+async def analyze_stock(stock_code: str, extended: bool = True):
+    """
+    分析单只股票的详细预测 (30+因子版)
+
+    Args:
+        stock_code: 股票代码
+        extended: 是否使用30+因子扩展版
+
+    Returns:
+    {
+        "code": 0,
+        "data": {
+            "stock_code": "600519",
+            "stock_name": "贵州茅台",
+            "today_zt": true,
+            "factors": {...},
+            "prediction": {...}
+        }
+    }
+    """
+    try:
+        fetcher = DataFetcher()
+        if extended:
+            result = ExtendedZtPredictor.analyze_stock(stock_code, fetcher)
+        else:
+            result = ZtPredictor.analyze_stock(stock_code)
+        if "error" in result:
+            return {"code": 1, "message": result["error"]}
+        return {"code": 0, "data": result}
+    except Exception as e:
+        logger.error(f"分析股票失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"code": 1, "message": str(e)}
+
+
+@app.get("/api/predict/factors")
+async def get_factor_definitions():
+    """
+    获取所有因子定义 (用于前端展示)
+
+    返回:
+    {
+        "code": 0,
+        "data": [
+            {
+                "name": "seal_time_score",
+                "display_name": "涨停时间",
+                "category": "seal_quality",
+                "weight": 0.08,
+                "description": "越早涨停越好..."
+            },
+            ...
+        ]
+    }
+    """
+    try:
+        from factor_registry import get_factor_registry
+        registry = get_factor_registry()
+        factors = registry.get_all_factors()
+        return {
+            "code": 0,
+            "data": [
+                {
+                    "name": f.name,
+                    "display_name": f.display_name,
+                    "category": f.category.value,
+                    "weight": f.weight,
+                    "description": f.description,
+                    "higher_is_better": f.higher_is_better
+                }
+                for f in factors
+            ]
+        }
+    except Exception as e:
+        logger.error(f"获取因子定义失败: {e}")
         return {"code": 1, "message": str(e)}
 
 

@@ -2,6 +2,7 @@
 class ZtPoolApp {
     constructor() {
         this.data = [];
+        this.predictions = {};  // {code: prediction_result}
         this.sortColumn = 'continuous_days';
         this.sortOrder = 'desc';
         this.filters = { continuous: 1, seal: 0, sector: '', search: '' };
@@ -26,9 +27,17 @@ class ZtPoolApp {
             searchStock: document.getElementById('search-stock'),
             refreshBtn: document.getElementById('refresh-btn'),
             btnYesterdayDetail: document.getElementById('btn-yesterday-detail'),
+            btnFactorDetail: document.getElementById('btn-factor-detail'),
             modal: document.getElementById('yesterday-modal'),
-            modalClose: document.getElementById('modal-close')
+            modalClose: document.getElementById('modal-close'),
+            factorModal: document.getElementById('factor-modal'),
+            factorModalClose: document.getElementById('factor-modal-close'),
+            predictionSection: document.getElementById('prediction-section'),
+            predictionList: document.getElementById('prediction-list'),
+            factorCategories: document.getElementById('factor-categories'),
+            factorStockInfo: document.getElementById('factor-stock-info')
         };
+        this.currentStockCode = null;  // 当前查看因子的股票
     }
 
     bindEvents() {
@@ -63,6 +72,13 @@ class ZtPoolApp {
         this.elements.modalClose?.addEventListener('click', () => this.hideYesterdayDetail());
         this.elements.modal?.addEventListener('click', (e) => {
             if (e.target === this.elements.modal) this.hideYesterdayDetail();
+        });
+
+        // 因子详情弹窗
+        this.elements.btnFactorDetail?.addEventListener('click', () => this.showFactorDetail());
+        this.elements.factorModalClose?.addEventListener('click', () => this.hideFactorDetail());
+        this.elements.factorModal?.addEventListener('click', (e) => {
+            if (e.target === this.elements.factorModal) this.hideFactorDetail();
         });
     }
 
@@ -119,25 +135,34 @@ class ZtPoolApp {
 
     async loadData() {
         try {
-            const [poolRes, statsRes, sectorRes] = await Promise.all([
+            const [poolRes, statsRes, sectorRes, predictRes] = await Promise.all([
                 fetch('/api/zt_pool/today'),
                 fetch('/api/stats/dashboard'),
-                fetch('/api/sector/ranking?limit=20')
+                fetch('/api/sector/ranking?limit=20'),
+                fetch('/api/predict/tomorrow')
             ]);
 
             const poolData = await poolRes.json();
             const statsData = await statsRes.json();
             const sectorData = await sectorRes.json();
+            const predictData = await predictRes.json();
 
             this.data = poolData.data || [];
 
+            // 构建预测结果字典
+            this.predictions = {};
+            (predictData.data || []).forEach(p => {
+                this.predictions[p.stock_code] = p;
+            });
+
             this.updateStats(statsData.data);
             this.updateSectorFilter(sectorData.data);
+            this.renderPrediction(predictData.data || []);
             this.renderTable();
             this.elements.updateTime.textContent = statsData.data?.update_time || '--';
         } catch (err) {
             console.error('加载数据失败:', err);
-            this.elements.tbody.innerHTML = '<tr><td colspan="8" class="loading">加载失败</td></tr>';
+            this.elements.tbody.innerHTML = '<tr><td colspan="9" class="loading">加载失败</td></tr>';
         }
     }
 
@@ -178,6 +203,162 @@ class ZtPoolApp {
             '极差': 'terrible'
         };
         return map[score] || 'neutral';
+    }
+
+    renderPrediction(predictions) {
+        const container = this.elements.predictionList;
+        const section = this.elements.predictionSection;
+
+        if (!predictions || predictions.length === 0) {
+            section.style.display = 'none';
+            return;
+        }
+
+        // 保存预测列表用于因子详情
+        this.predictionsList = predictions;
+        section.style.display = 'block';
+
+        container.innerHTML = predictions.slice(0, 10).map((p, idx) => {
+            const pred = p.prediction || {};
+            const score = pred.score || 0;
+            const rec = pred.recommendation || '--';
+            const upProb = (pred.up_probability || 0) * 100;
+
+            let scoreClass = 'low';
+            if (score >= 70) scoreClass = 'high';
+            else if (score >= 50) scoreClass = 'medium';
+
+            let recClass = 'watch';
+            if (rec === '强烈推荐') recClass = 'strong';
+            else if (rec === '推荐') recClass = 'good';
+            else if (rec === '谨慎') recClass = 'caution';
+
+            const isTop3 = idx < 3;
+
+            return `<div class="prediction-card ${isTop3 ? 'top-3' : ''}"
+                onclick="window.app.showStockFactorDetail(window.app.predictionsList[${idx}])"
+                title="${this.formatAmount(p.seal_amount)} | 主力净流入${this.formatFlow(p.main_net_inflow)}">
+                <div class="prediction-stock">
+                    <span class="name ${p.continuous_days > 1 ? 'stock-up' : ''}">${p.stock_name}</span>
+                    <span class="code">${p.stock_code}</span>
+                </div>
+                <div class="prediction-score">
+                    <span class="score-value ${scoreClass}">${score}</span>
+                    <span class="prob-value">涨 ${upProb.toFixed(0)}%</span>
+                </div>
+                <span class="recommendation ${recClass}">${rec}</span>
+            </div>`;
+        }).join('');
+    }
+
+    getRecBadge(rec) {
+        let recClass = 'watch';
+        if (rec === '强烈推荐') recClass = 'strong';
+        else if (rec === '推荐') recClass = 'good';
+        else if (rec === '谨慎') recClass = 'caution';
+        return `<span class="rec-badge ${recClass}">${rec}</span>`;
+    }
+
+    // 因子详情相关
+    async showFactorDetail() {
+        const modal = this.elements.factorModal;
+        if (!modal) return;
+
+        modal.style.display = 'block';
+        this.elements.factorCategories.innerHTML = '<div class="loading">加载中...</div>';
+
+        // 获取因子定义
+        try {
+            const res = await fetch('/api/predict/factors');
+            const data = await res.json();
+            if (data.code === 0) {
+                this.factorDefinitions = data.data;
+            }
+        } catch (err) {
+            console.error('加载因子定义失败:', err);
+        }
+
+        // 显示第一只股票的因子详情
+        const predictions = this.predictionsList || [];
+        if (predictions.length > 0) {
+            this.showStockFactorDetail(predictions[0]);
+        }
+    }
+
+    showStockFactorDetail(prediction) {
+        if (!prediction || !prediction.factors) {
+            this.elements.factorCategories.innerHTML = '<div class="loading">暂无因子数据</div>';
+            return;
+        }
+
+        const pred = prediction.prediction || {};
+        this.elements.factorStockInfo.innerHTML = `
+            <h3>${prediction.stock_name} (${prediction.stock_code})</h3>
+            <div class="score-summary">
+                综合评分: <strong style="font-size:24px;color:var(--primary)">${pred.score || 0}</strong> |
+                上涨概率: <strong>${((pred.up_probability || 0) * 100).toFixed(0)}%</strong> |
+                推荐: <span class="recommendation ${this.getRecClass(pred.recommendation)}">${pred.recommendation || '--'}</span>
+            </div>
+        `;
+
+        // 按类别分组显示因子
+        const categories = this.groupFactorsByCategory(prediction.factors);
+        this.elements.factorCategories.innerHTML = Object.entries(categories).map(([cat, items]) => `
+            <div class="factor-category">
+                <h4>${this.getCategoryName(cat)}</h4>
+                ${items.map(item => `
+                    <div class="factor-item">
+                        <span class="name">${item.display_name}</span>
+                        <span class="value ${this.getScoreClass(item.score)}">${item.score.toFixed(0)}</span>
+                    </div>
+                `).join('')}
+            </div>
+        `).join('');
+    }
+
+    groupFactorsByCategory(factors) {
+        const grouped = {};
+        (this.factorDefinitions || []).forEach(def => {
+            const cat = def.category;
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push({
+                name: def.name,
+                display_name: def.display_name,
+                score: factors[def.name] || 50,
+                weight: def.weight
+            });
+        });
+        return grouped;
+    }
+
+    getCategoryName(cat) {
+        const names = {
+            'seal_quality': '涨停质量因子',
+            'capital_behavior': '资金行为因子',
+            'market_env': '市场环境因子',
+            'technical': '技术形态因子',
+            'historical': '历史规律因子',
+            'order_book': '盘口数据因子',
+            'northbound': '北向资金因子'
+        };
+        return names[cat] || cat;
+    }
+
+    getScoreClass(score) {
+        if (score >= 70) return 'high';
+        if (score >= 40) return 'medium';
+        return 'low';
+    }
+
+    getRecClass(rec) {
+        if (rec === '强烈推荐') return 'strong';
+        if (rec === '推荐') return 'good';
+        if (rec === '谨慎') return 'caution';
+        return 'watch';
+    }
+
+    hideFactorDetail() {
+        this.elements.factorModal.style.display = 'none';
     }
 
     updateSectorFilter(sectors) {
@@ -224,11 +405,14 @@ class ZtPoolApp {
     renderTable() {
         const filtered = this.getFilteredData();
         if (filtered.length === 0) {
-            this.elements.tbody.innerHTML = '<tr><td colspan="8" class="loading">暂无数据</td></tr>';
+            this.elements.tbody.innerHTML = '<tr><td colspan="9" class="loading">暂无数据</td></tr>';
             return;
         }
 
-        this.elements.tbody.innerHTML = filtered.map(item => `
+        this.elements.tbody.innerHTML = filtered.map(item => {
+            const pred = this.predictions[item.stock_code];
+            const rec = pred?.prediction?.recommendation || '--';
+            return `
             <tr>
                 <td>${item.stock_code}</td>
                 <td class="stock-up">${item.stock_name}</td>
@@ -238,8 +422,9 @@ class ZtPoolApp {
                 <td class="${item.super_net_inflow >= 0 ? 'positive' : 'negative'}">${this.formatFlow(item.super_net_inflow)}</td>
                 <td class="${item.big_net_inflow >= 0 ? 'positive' : 'negative'}">${this.formatFlow(item.big_net_inflow)}</td>
                 <td>${item.sector || '-'}</td>
+                <td class="td-prediction">${this.getRecBadge(rec)}</td>
             </tr>
-        `).join('');
+        `}).join('');
     }
 
     formatAmount(val) {

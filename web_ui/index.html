@@ -91,6 +91,17 @@
             <button id="btn-yesterday-detail" class="btn-detail">📋 昨涨停详情</button>
         </div>
 
+        <!-- Prediction Section -->
+        <div class="prediction-section" id="prediction-section" style="display:none;">
+            <div class="prediction-header">
+                <h2>🎯 次日涨跌预测 TOP10 (30+因子模型)</h2>
+                <button id="btn-factor-detail" class="btn-factor">📊 因子详情</button>
+            </div>
+            <div class="prediction-list" id="prediction-list">
+                <div class="loading">加载中...</div>
+            </div>
+        </div>
+
         <!-- Data Table -->
         <div class="table-container">
             <table id="zt-table">
@@ -104,10 +115,11 @@
                         <th data-sort="super_net_inflow">超大单</th>
                         <th data-sort="big_net_inflow">大单</th>
                         <th data-sort="sector">板块</th>
+                        <th>预测</th>
                     </tr>
                 </thead>
                 <tbody id="zt-tbody">
-                    <tr><td colspan="8" class="loading">加载中...</td></tr>
+                    <tr><td colspan="9" class="loading">加载中...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -141,6 +153,22 @@
                     <div class="stock-list" id="list-flat">
                         <div class="loading">加载中...</div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 因子详情弹窗 -->
+    <div id="factor-modal" class="modal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>📊 预测因子详情</h2>
+                <span id="factor-modal-close" class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="factor-stock-info" class="factor-stock-info"></div>
+                <div id="factor-categories" class="factor-categories">
+                    <div class="loading">加载中...</div>
                 </div>
             </div>
         </div>
